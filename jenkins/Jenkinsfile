@@ -4,13 +4,27 @@ pipeline {
   stages {
     stage('Clone Project') {
       steps {
-        git 'https://github.com/sudilaw/09jenkins.git'
+        git 'https://github.com/sudilaw/simple-site'
       }
     }
 
-    stage('Install Dependencies') {
+    stage('Install Apache') {
       steps {
         sh 'sudo apt update && sudo apt install -y apache2'
+      }
+    }
+
+    stage('Copy of index.html') {
+      steps {
+	sh '''
+	  sudo cp index.html /var/www/html/index.html
+	'''
+      }
+    }
+
+    stage('Check of site running') {
+      steps {
+	sh 'curl -I http:localhost'
       }
     }
 
