@@ -25,7 +25,7 @@ pipeline {
       steps {
         sh '''
           echo "Error types: 4xx и 5xx in logs Apache:"
-          sudo grep -E "HTTP/1.[01]\" [45][0-9]{2}" /var/log/apache2/access.log || echo "Нет ошибок"
+          sudo grep -E 'HTTP/1.[01]\" [45][0-9]{2}' /var/log/apache2/access.log || echo "Any errors"
         '''
       }
     }
