@@ -2,43 +2,41 @@ pipeline {
   agent any
 
   stages {
-    stage('Clone Project') {
-      steps {
-        git 'https://github.com/sudilaw/simple-site'
-      }
-    }
-
     stage('Install Apache') {
       steps {
-        sh 'sudo apt update && sudo apt install -y apache2'
+        sh '''
+          sudo apt update
+          sudo apt install -y apache2
+          sudo systemctl start apache2
+          sudo systemctl enable apache2
+        '''
       }
     }
 
-    stage('Copy of index.html') {
+    stage('Deploy index.html') {
       steps {
-	sh '''
-	  sudo cp index.html /var/www/html/index.html
-	'''
+        sh '''
+          sudo cp index.html /var/www/html/index.html
+        '''
       }
     }
 
-    stage('Check of site running') {
+    stage('Logs check-up') {
       steps {
-	sh 'curl -I http:localhost'
-      }
-    }
-
-    stage('Check Apache Logs') {
-      steps {
-        sh 'grep -E "HTTP/1.1\" [45][0-9]{2}" /var/log/apache2/access.log || echo "No errors"'
-      }
-    }
-
-    stage('Finish') {
-      steps {
-        echo 'Pipeline complete'
+        sh '''
+          echo "Error types: 4xx и 5xx in logs Apache:"
+          sudo grep -E "HTTP/1.[01]\" [45][0-9]{2}" /var/log/apache2/access.log || echo "Нет ошибок"
+        '''
       }
     }
   }
-}
 
+  post {
+    success {
+      echo '> Apache is setted up, site is on and up-to-date'
+    }
+    failure {
+      echo '> Something went wrong... Again... Check pipeline.'
+    }
+  }
+}
